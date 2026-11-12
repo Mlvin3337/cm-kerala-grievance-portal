@@ -1,0 +1,12 @@
+
+node_modules/
+.env
+.env.*
+!.env.example
+dist/
+
+database_backup.sql
+*.pem
+
+backend/uploads/grievances/*
+!backend/uploads/grievances/.gitkeep
