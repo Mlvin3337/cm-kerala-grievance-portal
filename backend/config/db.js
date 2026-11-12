@@ -4,6 +4,24 @@ const fs = require("fs");
 const path = require("path");
 require("dotenv").config();
 
+const getSSLConfig = () => {
+    if (process.env.DB_SSL !== "true") {
+        return undefined;
+    }
+
+    const ca = process.env.DB_SSL_CA
+        ? process.env.DB_SSL_CA.replace(/\\n/g, "\n")
+        : fs.readFileSync(
+            path.resolve(__dirname, "../../isrgrootx1.pem"),
+            "utf8"
+        );
+
+    return {
+        ca,
+        rejectUnauthorized: true
+    };
+};
+
 const pool = mysql.createPool({
     host: process.env.DB_HOST,
     user: process.env.DB_USER,
@@ -11,15 +29,7 @@ const pool = mysql.createPool({
     database: process.env.DB_NAME,
     port: Number(process.env.DB_PORT) || 3306,
 
-    ssl: process.env.DB_SSL === "true"
-        ? {
-            ca: fs.readFileSync(
-                path.resolve(__dirname, "../../isrgrootx1.pem"),
-                "utf8"
-            ),
-            rejectUnauthorized: true
-        }
-        : undefined,
+    ssl: getSSLConfig(),
 
     waitForConnections: true,
     connectionLimit: 10,
